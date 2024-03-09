@@ -6,6 +6,13 @@ const sendMessage = async (req, res) => {
     const { receiverId } = req.params;
     const { message } = req.body;
     const senderId = req.user._id;
+    const stringSenderId = senderId.toString();
+    if (receiverId === stringSenderId) {
+      return res.status(400).json({
+        success: false,
+        message: "You can not  send a message to yourself",
+      });
+    }
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
@@ -26,13 +33,14 @@ const sendMessage = async (req, res) => {
       data: newMessage,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: "Internal Server Error",
-      error: error.message,
+      message: error.message || "Internal Server Error",
+      error: error,
     });
   }
 };
+
 export const getMessage = async (req, res) => {
   try {
     const { receiverId } = req.params;
@@ -50,10 +58,10 @@ export const getMessage = async (req, res) => {
       data: messages,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: "Internal Server Error",
-      error: error.message,
+      message: error.message || "Internal Server Error",
+      error: error,
     });
   }
 };
