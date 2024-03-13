@@ -21,6 +21,7 @@ const userLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+
     const isPasswordCorrect = await bcrypt.compare(
       password,
       user?.password || ""
@@ -32,7 +33,6 @@ const userLogin = async (req, res, next) => {
       });
     }
     const accessToken = generateToken(user?.id);
-    const { password: userPassword, ...rest } = user;
     res.status(200).json({
       success: true,
       message: "User login successfully",
